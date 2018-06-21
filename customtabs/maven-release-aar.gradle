@@ -1,0 +1,29 @@
+apply plugin: 'maven'
+
+ext {// ext is a gradle closure allowing the declaration of global properties
+    PUBLISH_GROUP_ID = 'com.microsoft.emmx'
+    PUBLISH_ARTIFACT_ID = 'customtabs'
+    PUBLISH_VERSION = android.defaultConfig.versionName
+}
+
+uploadArchives {
+    repositories.mavenDeployer {
+        def deployPath = file(getProperty('aar.deployPath'))
+        repository(url: "file://${deployPath.absolutePath}")
+        pom.project {
+            groupId project.PUBLISH_GROUP_ID
+            artifactId project.PUBLISH_ARTIFACT_ID
+            version project.PUBLISH_VERSION
+        }
+    }
+}
+
+
+task androidSourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.sourceFiles
+}
+
+artifacts {
+    archives androidSourcesJar
+}
