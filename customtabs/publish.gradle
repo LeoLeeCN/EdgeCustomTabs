@@ -1,0 +1,59 @@
+apply plugin: 'maven-publish'
+apply plugin: 'com.jfrog.bintray'
+
+version '1.0.1'
+group 'com.microsoft.emmx'
+
+publishing {
+    publications {
+        library(MavenPublication) {
+            artifact("$buildDir/outputs/aar/customtabs-release.aar")
+            groupId = 'com.microsoft.emmx'
+            artifactId 'customtabs'
+            version this.version
+
+            pom.withXml {
+                def dependenciesNode = asNode().appendNode('dependencies')
+
+                // Iterate over the implementation dependencies (we don't want the test ones), adding a <dependency> node for each
+                configurations.implementation.allDependencies.each {
+                    // Ensure dependencies such as fileTree are not included in the pom.
+                    if (it.name != 'unspecified') {
+                        def dependencyNode = dependenciesNode.appendNode('dependency')
+                        dependencyNode.appendNode('groupId', it.group)
+                        dependencyNode.appendNode('artifactId', it.name)
+                        dependencyNode.appendNode('version', it.version)
+                    }
+                }
+            }
+        }
+    }
+}
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
+
+bintray {
+    user = properties.getProperty("BINTRAY_USER")
+    key = properties.getProperty("BINTRAY_API_KEY")
+    publications = ['library']
+    configurations = ['archives']
+    override = true
+    pkg {
+        repo = 'maven'
+        group = this.group
+        name = this.group + '.customtabs'
+        description = "EMMX customtabs sdk"
+        publish = true
+        publicDownloadNumbers = true
+        licenses = ['Apache-2.0']
+        websiteUrl = 'https://github.com/LeoLeeCN/EdgeCustomTabs'
+        vcsUrl = 'https://github.com/LeoLeeCN/EdgeCustomTabs.git'
+        version {
+            name = this.version
+            desc = ""
+            released = new Date()
+            vcsTag = this.version
+        }
+    }
+}
