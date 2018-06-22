@@ -18,7 +18,7 @@ android {
     defaultConfig {
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         versionCode 1
-        versionName "1.0.1"
+        versionName "1.0.0"
     }
 
     sourceSets {
