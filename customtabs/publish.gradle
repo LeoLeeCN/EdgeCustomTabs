@@ -1,13 +1,42 @@
 apply plugin: 'maven-publish'
 apply plugin: 'com.jfrog.bintray'
 
-version '1.0.1'
+version '1.0.0'
 group 'com.microsoft.emmx'
+
+task sourcesJar(type: Jar) {
+    classifier = 'sources'
+    from android.sourceSets.main.java.srcDirs
+}
+
+task javadoc(type: Javadoc) {
+    //source = android.sourceSets.main.java.srcDirs
+    source = 'src/main/java'
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+afterEvaluate {
+    javadoc.classpath += files(android.libraryVariants.collect { variant ->
+        variant.javaCompile.classpath.files
+    })
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
 
 publishing {
     publications {
         library(MavenPublication) {
             artifact("$buildDir/outputs/aar/customtabs-release.aar")
+            artifact sourcesJar
+            artifact javadocJar
             groupId = 'com.microsoft.emmx'
             artifactId 'customtabs'
             version this.version
