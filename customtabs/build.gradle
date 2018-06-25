@@ -38,5 +38,5 @@ android {
         targetCompatibility JavaVersion.VERSION_1_7
     }
 }
-//apply from: 'maven-release-aar.gradle'
-apply from: 'publish.gradle'
+apply from: 'maven-release-aar.gradle'
+//apply from: 'publish.gradle'
